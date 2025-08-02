@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Secret Message for My Namya! ❤️</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #ffe8f2; /* Light pink background */
+            color: #333;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden; /* Prevent horizontal scroll from animations */
+            overflow-y: auto;
+        }
+
+        .container {
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            padding: 40px;
+            max-width: 850px;
+            width: 90%;
+            margin: 30px auto;
+            text-align: center;
+            opacity: 0; /* Hidden initially, revealed after envelope opens */
+            transform: translateY(20px);
+            transition: opacity 1.5s ease-out, transform 1.5s ease-out;
+            position: relative;
+            z-index: 10; /* Ensure it's above the envelope once revealed */
+        }
+
+        .container.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            color: #ff69b4; /* Hot pink for heading */
+            font-size: 3.8em;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            font-family: 'Poppins', sans-serif;
+            color: #ff8fab; /* Lighter pink for subheadings */
+            font-size: 2.2em;
+            margin-top: 35px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .message-box {
+            background-color: #fff0f5; /* Even lighter pink for message box */
+            border-left: 6px solid #ff69b4;
+            padding: 30px;
+            margin: 30px auto;
+            border-radius: 10px;
+            text-align: left;
+            white-space: pre-wrap; /* Preserves line breaks from your message */
+            font-size: 1.15em;
+            color: #555;
+            line-height: 1.8;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.08);
+        }
+
+        /* The photo-gallery class and its styling are removed */
+        .footer {
+            margin-top: 50px;
+            font-size: 1.3em;
+            color: #ff69b4;
+            font-weight: bold;
+            font-family: 'Dancing Script', cursive;
+        }
+
+        /* --- Envelope and Password Area --- */
+        .initial-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffe8f2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 1.5s ease-out;
+        }
+
+        .initial-screen.hidden {
+            opacity: 0;
+            pointer-events: none; /* Allows clicks to go through once hidden */
+        }
+
+        .envelope-wrapper {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            perspective: 1000px; /* For 3D rotation effect */
+            margin-bottom: 40px;
+        }
+
+        .envelope {
+            width: 100%;
+            height: 100%;
+            background-color: #f7b4d1; /* A nice envelope pink */
+            border-radius: 15px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform-style: preserve-3d;
+            transition: transform 1.5s ease-out;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .envelope.open {
+            transform: rotateX(180deg); /* Simple 3D open effect */
+        }
+
+        .envelope::before, .envelope::after {
+            content: '';
+            position: absolute;
+            background-color: inherit;
+            border-radius: inherit;
+        }
+
+        /* Envelope flaps (simplified for animation) */
+        .envelope::before { /* Bottom flap */
+            bottom: -20px; /* Extends slightly below */
+            left: 0;
+            width: 100%;
+            height: 100px; /* Half height */
+            transform-origin: top;
+            transform: rotateX(0deg); /* Initial state */
+            transition: transform 1.5s ease-out;
+            z-index: -1; /* Behind main envelope body */
+        }
+
+        .envelope.open::before {
+            transform: rotateX(-180deg); /* Flips open */
+        }
+
+        .ribbon {
+            position: absolute;
+            width: 100%;
+            height: 30px;
+            background-color: #ff4d94; /* Darker pink for ribbon */
+            border-radius: 5px;
+            top: calc(50% - 15px); /* Center vertically */
+            left: 0;
+            transform: translateZ(20px); /* Bring slightly forward */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 20;
+            transition: transform 1s ease-out, opacity 1s ease-out;
+            pointer-events: none; /* Make sure it doesn't interfere with clicks */
+        }
+
+        .ribbon::before, .ribbon::after {
+            content: '';
+            position: absolute;
+            background-color: inherit;
+        }
+
+        /* Ribbon bow/knot (stylized) */
+        .ribbon::before {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            left: calc(50% - 20px);
+            top: -5px;
+            background-color: #e6005c; /* Even darker pink */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            z-index: 21;
+        }
+        .ribbon::after { /* Second loop for a more bow-like look */
+             width: 30px;
+             height: 30px;
+             border-radius: 50%;
+             left: calc(50% - 15px);
+             top: 0px;
+             background-color: #ff4d94; /* Same as ribbon */
+             z-index: 22;
+        }
+
+
+        .ribbon.hidden {
+            transform: translateY(-200px) scale(0.5); /* Fly off upwards and shrink */
+            opacity: 0;
+            pointer-events: none;
+        }
+
+
+        .password-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .password-area p {
+            font-size: 1.2em;
+            color: #666;
+            font-weight: 500;
+        }
+
+        #passwordInput {
+            padding: 12px 20px;
+            border: 2px solid #ffb3d1;
+            border-radius: 8px;
+            font-size: 1.1em;
+            outline: none;
+            width: 250px;
+            max-width: 80%;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            text-align: center;
+        }
+
+        #passwordInput:focus {
+            border-color: #ff69b4;
+            box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.3);
+        }
+
+        button {
+            background-color: #ff69b4;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(255, 105, 180, 0.3);
+            font-weight: 600;
+        }
+
+        button:hover {
+            background-color: #e60073;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 105, 180, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #error-message {
+            color: #e6005c;
+            margin-top: 10px;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        #error-message.visible {
+            opacity: 1;
+        }
+
+        /* Small screen adjustments */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.8em;
+            }
+            h2 {
+                font-size: 1.8em;
+            }
+            .message-box {
+                padding: 20px;
+                font-size: 1em;
+            }
+            .photo-gallery img {
+                width: 150px;
+                height: 150px;
+            }
+            .envelope-wrapper {
+                width: 250px;
+                height: 170px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Initial Screen with Envelope and Password -->
+    <div class="initial-screen" id="initialScreen">
+        <div class="envelope-wrapper">
+            <div class="envelope" id="theEnvelope">
+                <!-- Envelope content (like a subtle texture or design) can go here -->
+            </div>
+            <div class="ribbon" id="theRibbon"></div>
+        </div>
+        <div class="password-area">
+            <p>Enter the secret password to open my heart's message:</p>
+            <input type="password" id="passwordInput" placeholder="Your secret word...">
+            <button onclick="checkPassword()">Unlock My Love</button>
+            <p id="error-message"></p>
+        </div>
+    </div>
+
+    <!-- Main Content (Hidden until unlocked) -->
+    <div class="container" id="mainContent">
+        <h1>Happy Girlfriend's Day, Namya! ❤️</h1>
+        <p style="font-size: 1.2em; color: #666;">A little surprise from your namu babyyy...</p>
+
+        <h2>My Message to You...</h2>
+        <div class="message-box">
+HEY BABY
+I DONT EVEN KNOW WHERE TO START BECAUSE MY HEART IS OVERFLOWING WITH EVERYTHING I WANT TO SAY TO YOU IT IS CRAZY HOW SOMEONE CAN BECOME SO IMPORTANT SO NECESSARY TO YOUR SOUL THAT EVEN THE THOUGHT OF A DAY WITHOUT THEM FEELS EMPTY THAT IS YOU FOR ME YOU ARE NOT JUST MY GIRLFRIEND YOU ARE MY HOME MY COMFORT MY SOFTEST PLACE TO FALL AND MY REASON TO KEEP GOING WHEN LIFE GETS TOO HARD
+THERE HASNT BEEN A SINGLE DAY WHERE I HAVEN'T THOUGHT ABOUT HOW LUCKY I AM TO HAVE YOU YOUR SMILE YOUR LAUGH THE WAY YOUR EYES LIGHT UP WHEN YOU TALK ABOUT SOMETHING YOU LOVE I COULD STARE AT YOU FOREVER AND STILL NOT HAVE ENOUGH I SWEAR WHEN I AM WITH YOU THE WORLD JUST FADES ALL MY STRESS MY WORRIES MY PAIN EVERYTHING DISAPPEARS IT IS JUST YOU AND ME AND THAT IS ALL I EVER NEED
+I KNOW THINGS ARE NOT ALWAYS EASY I KNOW LIFE THROWS THINGS AT US SOMETIMES MORE THAN WE CAN HANDLE AND I KNOW YOU CARRY SO MUCH ON YOUR HEART THINGS YOU DONT ALWAYS SAY OUT LOUD AND MAYBE YOU THINK I DONT NOTICE BUT BABY I DO I FEEL EVERY SILENCE EVERY FORCED SMILE EVERY QUIET TEAR YOU HIDE AND I WANT YOU TO KNOW THAT EVEN WHEN YOU THINK NO ONE UNDERSTANDS I AM RIGHT HERE UNDERSTANDING IN THE QUIETEST WAYS ALWAYS HOLDING SPACE FOR YOU
+YOU DONT HAVE TO BE STRONG ALL THE TIME YOU DONT HAVE TO HAVE IT ALL FIGURED OUT YOU DONT NEED TO PRETEND WITH ME I WANT TO BE YOUR SAFEST PLACE I WANT YOU TO FALL APART IN FRONT OF ME AND KNOW I WILL STILL LOVE YOU MORE THAN ANYTHING YOU DONT HAVE TO CARRY YOUR PAIN ALONE LET ME HOLD IT WITH YOU LET ME BE THE ARMS YOU RUN INTO NOT JUST WHEN YOU ARE HAPPY BUT ESPECIALLY WHEN YOU ARE BROKEN
+I DONT JUST NEED YOU FOR THE GOOD DAYS I NEED YOU FOR THE BAD ONES TOO I DONT JUST WANT THE SMILES I WANT THE TEARS TOO I WANT THE REAL RAW MESSY EMOTIONAL VERSION OF YOU BECAUSE THAT IS THE MOST BEAUTIFUL PART OF YOU THE PART THAT TRUSTS ME WITH YOUR TRUTH AND IN RETURN I WANT TO FEEL THAT TOO I WANT TO FEEL LIKE I CAN FALL APART IN YOUR ARMS AND YOU WILL BE THERE FOR ME I WANT YOUR LOVE NOT JUST IN WORDS BUT IN PRESENCE IN THE LITTLE WAYS YOU SHOW ME I MATTER
+YOU ARE THE MOST PRECIOUS PART OF MY LIFE YOU ARE MY MORNING THOUGHT AND MY NIGHT PRAYER YOU ARE THE SOFT SONG IN MY CHAOS AND THE QUIET I CRAVE AFTER A LOUD DAY AND I SWEAR NO MATTER HOW MANY STORMS WE WALK THROUGH I WILL ALWAYS CHOOSE YOU AGAIN AND AGAIN AND AGAIN
+SO IF YOU ARE READING THIS WITH TEARS IN YOUR EYES JUST KNOW THOSE TEARS ARE PROOF OF HOW DEEP WE LOVE AND I WOULDNT WANT IT ANY OTHER WAY I LOVE YOU BEYOND WORDS BEYOND REASON BEYOND THIS LIFETIME
+        </div>
+
+        <p class="footer">Love, Your namu babyyy &hearts;</p>
+    </div>
+
+    <script>
+        // The password has been changed to "ilovevaibhav" as requested.
+        const correctPassword = "ilovevaibhav";
+        const passwordInput = document.getElementById("passwordInput");
+        const errorMessage = document.getElementById("error-message");
+        const initialScreen = document.getElementById("initialScreen");
+        const theEnvelope = document.getElementById("theEnvelope");
+        const theRibbon = document.getElementById("theRibbon");
+        const mainContent = document.getElementById("mainContent");
+
+        function checkPassword() {
+            if (passwordInput.value.toLowerCase() === correctPassword) {
+                errorMessage.classList.remove("visible"); // Hide error if it was shown
+
+                // 1. Animate Ribbon Away
+                theRibbon.classList.add("hidden");
+
+                // 2. Animate Envelope Open after a short delay for ribbon
+                setTimeout(() => {
+                    theEnvelope.classList.add("open");
+                }, 800); // Start opening envelope after 0.8 seconds
+
+                // 3. Reveal Main Content after envelope opens
+                setTimeout(() => {
+                    initialScreen.classList.add("hidden"); // Hide the initial screen
+                    mainContent.classList.add("revealed"); // Show the main content with animation
+                    // Scroll to top of the revealed content if needed, though 'display: flex; min-height: 100vh' should center it
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 2000); // 2 seconds total delay (0.8s for ribbon + 1.2s for envelope)
+
+            } else {
+                errorMessage.textContent = "Oops! That's not the secret password. Try again!";
+                errorMessage.classList.add("visible");
+                passwordInput.value = ""; // Clear the input field
+                passwordInput.focus(); // Keep focus on the input
+            }
+        }
+
+        // Allow pressing Enter key to submit password
+        passwordInput.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                checkPassword();
+            }
+        });
+
+        // Set focus on password input when page loads
+        window.onload = function() {
+            passwordInput.focus();
+        };
+    </script>
+
+</body>
+</html>
